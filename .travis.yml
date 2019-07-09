@@ -50,6 +50,7 @@ before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 script:
   # - cargo make test
+  # TODO: add `cargo-outdated` to the list (but don't error)
 
   # stop sccache
   - sccache --stop-server || true

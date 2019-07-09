@@ -42,3 +42,14 @@
 @import 'src/component/task_result';
 @import 'src/component/task_details';
 @import 'src/component/variable';
+
+// TODO: for later, when the "task menu" is added back
+// @import 'scss/bulma/components/_dropdown';
+
+// TODO: Font Awesome
+//
+// We should investigate using FA's SVG support, or their SASS mixins prevent
+// having to load two separate font-awesome related CSS files with a lot of
+// unused content.
+//
+// @import 'fontawesome/';

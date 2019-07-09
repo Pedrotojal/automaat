@@ -176,6 +176,9 @@ where
     fn footer(&self, cx: &mut RenderContext<'b>) -> Node<'b> {
         use dodrio::builder::*;
 
+        // TODO: for when the menu is added back
+        // let btn_menu = component::TaskMenu::<C>::new(true);
+
         footer(&cx)
             .children([self.btn_back(cx), self.btn_run(cx)])
             .finish()

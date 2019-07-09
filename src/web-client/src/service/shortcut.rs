@@ -27,6 +27,40 @@ pub(crate) const ESCAPE: u32 = 27;
 pub(crate) const F: u32 = 70;
 
 /// The Shortcut service.
+// TODO: think about a different approach:
+//
+// The `ShortcutService` keeps a hashmap of (key, [actions]), it then exposes a
+// `register_shortcut` method that takes a key, and a future.
+//
+// When a key is pressed, it executes any actions it knows for that given key.
+//
+// Now, where/how do we register these shortcuts? In the components? If so, then
+// the shortcut service would have to be accessible on `App` (doable, nothing
+// wrong with that). But are components the right place?
+//
+// I feel like they are? Since shortcuts are tied to what is visible on the
+// screen?
+//
+// But we actually don't have access to `App` in these components, only in the
+// events attached to the DOM (using `on`). This makes sense, since these
+// components are potentially rendered each frame, so doing that would be
+// expensive...
+//
+// OTOH, which component is shown is driven by the state of the models, so then
+// perhaps the models themselves should be responsible for registering
+// shortcuts?
+//
+// But driving that point to its logical conclusion (maybe?); the controller is
+// responsible for managing the model state, so perhaps _it_ should be
+// responsible for the shortcuts as well? Although I don't think that makes a
+// lot of sense, as it would have to know all shortcuts for all models in a
+// single place, whereas it is more logical for that knowledge to be hidden in
+// the models themselves...
+//
+// But, we don't have access to `App` or the `ShortcutService` in the models
+// either, and I don't think it makes sense to pass that into each model as a
+// dependency? Or maybe it does? It does reflect some IoC semantics... That
+// would require putting it behind a `RefCell` or `Mutex` though, I suspect.
 #[derive(Default)]
 pub(crate) struct Service<C = Controller>(PhantomData<C>);
 

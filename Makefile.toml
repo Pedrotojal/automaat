@@ -38,7 +38,7 @@ script = [
 description = "Run the API server."
 category = "Development"
 workspace = false
-env = { "SERVER_ROOT" = "${CARGO_MAKE_WORKING_DIRECTORY}/src/web-client/static", "DATABASE_URL" = "postgres://postgres@localhost", "SERVER_BIND" = "127.0.0.1:4000" }
+env = { "SERVER_ROOT" = "${CARGO_MAKE_WORKING_DIRECTORY}/src/web-client/static", "DATABASE_URL" = "postgres://postgres@localhost" }
 command = "cargo"
 args = ["run", "--all-features"]
 
