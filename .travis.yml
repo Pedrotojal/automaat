@@ -5,73 +5,35 @@ rust:
   - stable
   - beta
   - nightly
-cache:
-  directories:
-    - $HOME/.cache/sccache
-    - $HOME/.cargo
-    - $HOME/.npm
-    - $HOME/.rustup
 env:
-  global:
-    - CARGO_BUILD_JOBS=8
-    - CARGO_TERM_COLOR=always
-    - RUSTC_WRAPPER=~/.cargo/bin/sccache
-    - SCCACHE_ERROR_LOG=$HOME/sccache.log
-    - SCCACHE_IDLE_TIMEOUT=0
-    - SCCACHE_VERSION=0.2.8
-    - CARGO_MAKE_VERSION=0.20.0
-    # DOCKER_PASSWORD
-    - secure: "RCqWKYe7AVZKl0slJ/NGV+j82udShy9O1Bvuod4PNVZ714mP+yCZyel1gFY9A1X2BMSVi2syZslPlKiHEWAR8dOsHAlLBXJqAdtIICTKa1sgYK+EzioxXYP2d8c6EMnqwzDiko+sc5T5N2crp1ysWd4DHdhqz3kBp6JnDaVSewu5I7dCOSAVFzUtJp/2Jb1lQd/nrAlSX/M8m6j1xYe91QNpJvcDhVN1IhD94xT+GT7CM+Ifgmft3rD8OTWJokqGji1/c14jdZRKiDZNrUtvMidiBazJdge6KI+uZ06dSn2ns+7R+ZoZn/NEALGnJXKR/1w6KD8cY2s1qumqUpotwtePLsf+/EGNAEAdaH9K+3O0CXRL0I04JxSi/vjC12nG7RIXkyWxpJE3clr9KJWNzkmvVRYrftt/SuT56hpOXyYFfZfe09Lkn4ZGKSYWcorQx1VB+Bo1Ee089/VeG0T8btcZ7z4LKfBwlq2mL5TFoqftvenHO7U+6m5iMdAQINat3XefRlCVIzozN8HQSBet347Crj47YvlyAnHmfKKW4qKFwNnOj9fTPtDktk98yezNJGXlTiZK5zfpnJLLHuAv5yAu8490Kb+sYM5t3J9r4DmHNA4to5o1ItIqOeBNQIFHNwkNJhYZBWjpPQtZypmFBNKIlwU6pBzomLmx8w67Ya4="
-matrix:
+  - CRATE=core
+  - CRATE=server
+  - CRATE=web-client
+  - CRATE=processors/git-clone
+  - CRATE=processors/http-request
+  - CRATE=processors/json-edit
+  - CRATE=processors/print-output
+  - CRATE=processors/redis-command
+  - CRATE=processors/shell-command
+  - CRATE=processors/sql-query
+  - CRATE=processors/string-regex
+cache: false
+stages:
+  - build
+  - test
+  - release
+jobs:
+  fast_finish: true
   allow_failures:
     - rust: nightly
-  fast_finish: true
-install:
-  # install sccache for improved build caching
-  - env RUSTC_WRAPPER= cargo install sccache --version "$SCCACHE_VERSION" || true
-
-  # install build & deploy dependencies
-  - env RUSTC_WRAPPER= cargo install wasm-snip wasm-bindgen-cli || true
-  - curl -L https://git.io/fjiDo | tar -xz -C /usr/local/bin/ && chmod u+x /usr/local/bin/*
-
-  # configure rustup
-  - echo "$TRAVIS_RUST_VERSION" > rust-toolchain
-  - rustup component add rustfmt clippy
-  - rustup target add wasm32-unknown-unknown
-  - rustup show
-
-  # install nodejs + packages
-  - curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-  - sudo apt-get install -y nodejs
-  - npm install -g prettier prettier-plugin-toml cleancss sass
-before_script:
-  - env RUST_LOG=sccache=error sccache --start-server
-  - cargo install cargo-make --version "$CARGO_MAKE_VERSION" || true
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-script:
-  # - cargo make test
-  # TODO: add `cargo-outdated` to the list (but don't error)
-
-  # stop sccache
-  - sccache --stop-server || true
-  - cat "$SCCACHE_ERROR_LOG"
-deploy:
-  - provider: script
-    script: cargo make push-container-latest
-    skip_cleanup: true
-    on:
+  include:
+    - stage: build
+      script: echo build stage!
       rust: stable
-      branch: master
-  - provider: script
-    script: cargo make push-container-release
-    skip_cleanup: true
-    on:
+      env: CRATE=
+    - stage: test
+      script: echo "testing crate $CRATE"
+    - stage: release
+      script: echo "releasing!"
       rust: stable
-      all_branches: true
-      condition: $TRAVIS_TAG =~ ^automaat-server|automaat-web-client
-services:
-  - postgresql
-  - redis-server
-  - docker
-notifications:
-  email: false
+      env: CRATE=
